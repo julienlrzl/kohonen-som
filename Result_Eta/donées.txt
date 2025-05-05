@@ -1,0 +1,73 @@
+ETA=0
+
+Erreur de quantification vectorielle moyenne : 0.332477887262327
+Mesure locale (simple) : 0.49460891119830386
+Mesure locale (quadratique) : 0.3050588438995359
+
+ETA = 0.5
+
+Erreur de quantification vectorielle moyenne : 0.00048400662957142894
+Mesure locale (simple) : 0.21252679295653823
+Mesure locale (quadratique) : 0.036636283797958615
+
+
+ETA = 1
+
+Erreur de quantification vectorielle moyenne : 0.0012680639502038594
+Mesure locale (simple) : 0.21325655042450453
+Mesure locale (quadratique) : 0.039883982606927326
+
+ETA = 2
+
+Erreur de quantification vectorielle moyenne : 0.0012284566914296852
+Mesure locale (simple) : 0.33347357333915495
+Mesure locale (quadratique) : 0.12056813777364386
+
+
+ETA= 0.001 N= 10 000
+
+Erreur de quantification vectorielle moyenne : 0.028240180532050976
+Mesure locale (simple) : 0.4034903922674177
+Mesure locale (quadratique) : 0.20533023053024976
+
+ETA = 0.001 N = 100 000
+
+Erreur de quantification vectorielle moyenne : 0.0019767785437978303
+Mesure locale (simple) : 0.25960651359314096
+Mesure locale (quadratique) : 0.06392037394881801
+
+ETA = 0.001 N = 500 000
+
+Erreur de quantification vectorielle moyenne : 0.0006676626961302336
+Mesure locale (simple) : 0.22066474985487106
+Mesure locale (quadratique) : 0.038879198399564496
+
+ETA = 0.01 N = 10 000
+
+Erreur de quantification vectorielle moyenne : 0.0015303957516405431
+Mesure locale (simple) : 0.2602649221840307
+Mesure locale (quadratique) : 0.06164374577531913
+
+ETA = 0.01 N = 100 000
+
+Erreur de quantification vectorielle moyenne : 0.0007818280964106902
+Mesure locale (simple) : 0.23377428299369957
+Mesure locale (quadratique) : 0.045935930950997815
+
+ETA = 0.01 N = 500 000
+
+Erreur de quantification vectorielle moyenne : 0.000905563022715914
+Mesure locale (simple) : 0.25608248988078697
+Mesure locale (quadratique) : 0.06269452643866165
+
+ETA = 0.5 N = 500 000
+
+Erreur de quantification vectorielle moyenne : 0.000905563022715914
+Mesure locale (simple) : 0.25608248988078697
+Mesure locale (quadratique) : 0.06269452643866165
+
+ETA = 1 N = 500 000
+
+Erreur de quantification vectorielle moyenne : 0.000732800395466385
+Mesure locale (simple) : 0.21922450357291326
+Mesure locale (quadratique) : 0.04117381490694236

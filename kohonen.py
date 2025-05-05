@@ -10,11 +10,11 @@
 # ------------------------------------------------------------------------
 # Pour que les divisions soient toutes réelles (pas de division entière)
 from __future__ import division
+
 # Librairie de calcul matriciel
-import numpy
+import numpy 
 # Librairie d'affichage
 import matplotlib.pyplot as plt
-
 
 
 class Neuron:
@@ -134,10 +134,7 @@ class SOM:
     # Mise à jour des poids de chaque neurone
     for posx in range(self.gridsize[0]):
       for posy in range(self.gridsize[1]):
-        self.map[posx][posy].learn(eta,sigma,jetoilex,jetoiley,x)
-
-        
-      
+        self.map[posx][posy].learn(eta,sigma,jetoilex,jetoiley,x)     
 
   def scatter_plot(self,interactive=False):
     '''
@@ -246,110 +243,400 @@ class SOM:
     # On renvoie l'erreur de quantification vectorielle moyenne
     return s/nsamples
   
-  # Faire une fonction pour définir la formule de Victor 
+# --------------------------Fonctions ajoutées---------------------------------
+  
+  def local_variation_simple(self):
+    total = 0
+    count = 0
+    for x in range(self.gridsize[0]):
+      for y in range(self.gridsize[1]):
+        wj = self.map[x][y].weights
+        voisins = []
+        # for dx, dy in [(-1,0),(1,0),(0,-1),(0,1)]:  # 4-voisinage
+        for dx, dy in [(-1,0),(1,0),(0,-1),(0,1), (-1,-1), (-1,1), (1,-1), (1,1)]:  # 8-voisinage
+          nx, ny = x + dx, y + dy
+          if 0 <= nx < self.gridsize[0] and 0 <= ny < self.gridsize[1]:
+            voisins.append(self.map[nx][ny].weights)
+        if voisins:
+          distances = [numpy.linalg.norm(wj - wi) for wi in voisins]
+          total += sum(distances) / len(distances)
+          count += 1
+    return total / count if count > 0 else 0
 
-# -----------------------------------------------------------------------------
-if __name__ == '__main__':
-  # Création d'un réseau avec une entrée (2,1) et une carte (10,10)
-  #TODO mettre à jour la taille des données d'entrée pour les données robotiques
-  network = SOM((2,1),(10,10))
-  # PARAMÈTRES DU RÉSEAU
-  # Taux d'apprentissage
-  ETA = 0.05
-  # Largeur du voisinage
-  SIGMA = 1.4
-  # Nombre de pas de temps d'apprentissage
-  N = 30000
-  # Affichage interactif de l'évolution du réseau 
-  #TODO à mettre à faux pour que les simulations aillent plus vite
-  VERBOSE = True
-  # Nombre de pas de temps avant rafraissichement de l'affichage
-  NAFFICHAGE = 1000
-  # DONNÉES D'APPRENTISSAGE
-  # Nombre de données à générer pour les ensembles 1, 2 et 3
-  # TODO décommenter les données souhaitées
-  nsamples = 1200
-  # Ensemble de données 1
-  samples = numpy.random.random((nsamples,2,1))*2-1
-  # Ensemble de données 2
-#  samples1 = -numpy.random.random((nsamples//3,2,1))
-#  samples2 = numpy.random.random((nsamples//3,2,1))
-#  samples2[:,0,:] -= 1
-#  samples3 = numpy.random.random((nsamples//3,2,1))
-#  samples3[:,1,:] -= 1
-#  samples = numpy.concatenate((samples1,samples2,samples3))
-  # Ensemble de données 3
-#  samples1 = numpy.random.random((nsamples//2,2,1))
-#  samples1[:,0,:] -= 1
-#  samples2 = numpy.random.random((nsamples//2,2,1))
-#  samples2[:,1,:] -= 1
-#  samples = numpy.concatenate((samples1,samples2))
-  # Ensemble de données robotiques
-#  samples = numpy.random.random((nsamples,4,1))
-#  samples[:,0:2,:] *= numpy.pi
-#  l1 = 0.7
-#  l2 = 0.3
-#  samples[:,2,:] = l1*numpy.cos(samples[:,0,:])+l2*numpy.cos(samples[:,0,:]+samples[:,1,:])
-#  samples[:,3,:] = l1*numpy.sin(samples[:,0,:])+l2*numpy.sin(samples[:,0,:]+samples[:,1,:])
-  # Affichage des données (pour les ensembles 1, 2 et 3)
-  plt.figure()
-  plt.scatter(samples[:,0,0], samples[:,1,0])
-  plt.xlim(-1,1)
-  plt.ylim(-1,1)
-  plt.suptitle('Donnees apprentissage')
-  plt.show()
-  # Affichage des données (pour l'ensemble robotique)
-#  plt.figure()
-#  plt.subplot(1,2,1)
-#  plt.scatter(samples[:,0,0].flatten(),samples[:,1,0].flatten(),c='k')
-#  plt.subplot(1,2,2)
-#  plt.scatter(samples[:,2,0].flatten(),samples[:,3,0].flatten(),c='k')
-#  plt.suptitle('Donnees apprentissage')
-#  plt.show()
+  def local_variation_quadratique(self):
+    total = 0
+    count = 0
+    for x in range(self.gridsize[0]):
+      for y in range(self.gridsize[1]):
+        wj = self.map[x][y].weights
+        voisins = []
+        for dx, dy in [(-1,0),(1,0),(0,-1),(0,1)]:  # 4-voisinage
+        
+          nx, ny = x + dx, y + dy
+          if 0 <= nx < self.gridsize[0] and 0 <= ny < self.gridsize[1]:
+            voisins.append(self.map[nx][ny].weights)
+        if voisins:
+          distances = [numpy.linalg.norm(wj - wi)**2 for wi in voisins]
+          total += sum(distances) / len(distances)
+          count += 1
+    return total / count if count > 0 else 0
+
+  # -----------------------------------------------------------------------------
+
+
+# if __name__ == '__main__':
+#     # Création d'un réseau avec une entrée (2,1) et une carte (10,10)
+#     # TODO mettre à jour la taille des données d'entrée pour les données robotiques
+#     CARTE = (10, 10)  # Taille de la carte
+#     network = SOM((2, 1), CARTE)
+
+# #   ETAS = [0.0, 0.5, 1, 2]
+# #   SIGMAS = [0.1, 1.0, 2.0, 5.0]
+# #   N_list = [100, 10000, 100000, 1000000]
+
+
+# #   SIGMA_FIXE = 1.0
+# #   N_FIXE = 10000
+# #   CARTE_FIXE = (10, 10)
+# #   ETA_FIXE = 0.01
+
+#     # PARAMÈTRES DU RÉSEAU
+#     ETA = 0.05  # Taux d'apprentissage
+#     SIGMA = 1.5  # Largeur du voisinage
+#     N = 500000  # Nombre de pas de temps d'apprentissage
+#     VERBOSE = False  # TODO mettre à False pour que les simulations aillent plus vite
+#     NAFFICHAGE = 1000  # Nombre de pas de temps avant rafraîchissement de l'affichage
+
+#     # DONNÉES D'APPRENTISSAGE
+#     nsamples = 1200
+
+#     # Ensemble de données 1
+#     samples = numpy.random.random((nsamples, 2, 1)) * 2 - 1
+
     
-  # SIMULATION
-  # Affichage des poids du réseau
-  network.plot()
-  # Initialisation de l'affichage interactif
-  if VERBOSE:
-    # Création d'une figure
-    plt.figure()
-    # Mode interactif
-    plt.ion()
-    # Affichage de la figure
-    plt.show()
-  else:
-  	# Affichage de la grille initiale
-  	network.scatter_plot(False)
-  # Boucle d'apprentissage
-  for i in range(N+1):
-    # Choix d'un exemple aléatoire pour l'entrée courante
-    index = numpy.random.randint(nsamples)
-    x = samples[index].flatten()
-    # Calcul de l'activité du réseau
-    network.compute(x)
-    # Modification des poids du réseau
-    network.learn(ETA,SIGMA,x)
-    # Mise à jour de l'affichage
-    if VERBOSE and i%NAFFICHAGE==0:
-      # Effacement du contenu de la figure
-      plt.clf()
-      # Remplissage de la figure
-      # TODO à remplacer par scatter_plot_2 pour les données robotiques
-      network.scatter_plot(True)
-      # Affichage du contenu de la figure
-      plt.pause(0.00001)
-      plt.draw()
-  # Fin de l'affichage interactif
-  if VERBOSE:
-    # Désactivation du mode interactif
-    plt.ioff()
-  else:
-  	# Affichage de la grille finale
-  	network.scatter_plot(False)
-  # Affichage des poids du réseau
-  network.plot()
-  # Affichage de l'erreur de quantification vectorielle moyenne après apprentissage
-  print("erreur de quantification vectorielle moyenne ",network.quantification(samples))
-  # Rajouter un print avec formule Victor
+#     import datetime
+#     now = datetime.datetime.now()
+    
 
+#     print("Test : ETA={ETA}, SIGMA={SIGMA}, N={N}, CARTE={CARTE}".format(ETA=ETA, SIGMA=SIGMA, N=N, CARTE=CARTE))
+#     print("Date et heure actuelles : ", now.strftime("%Y-%m-%d %H:%M:%S"))
+
+#     # TODO : Décommente un des ensembles ci-dessous si besoin
+
+#     # Ensemble de données 2
+#     # samples1 = -numpy.random.random((nsamples // 3, 2, 1))
+#     # samples2 = numpy.random.random((nsamples // 3, 2, 1))
+#     # samples2[:, 0, :] -= 1
+#     # samples3 = numpy.random.random((nsamples // 3, 2, 1))
+#     # samples3[:, 1, :] -= 1
+#     # samples = numpy.concatenate((samples1, samples2, samples3))
+
+#     # Ensemble de données 3
+#     # samples1 = numpy.random.random((nsamples // 2, 2, 1))
+#     # samples1[:, 0, :] -= 1
+#     # samples2 = numpy.random.random((nsamples // 2, 2, 1))
+#     # samples2[:, 1, :] -= 1
+#     # samples = numpy.concatenate((samples1, samples2))
+
+#     # Ensemble de données robotiques
+#     # samples = numpy.random.random((nsamples, 4, 1))
+#     # samples[:, 0:2, :] *= numpy.pi
+#     # l1 = 0.7
+#     # l2 = 0.3
+#     # samples[:, 2, :] = l1 * numpy.cos(samples[:, 0, :]) + l2 * numpy.cos(samples[:, 0, :] + samples[:, 1, :])
+#     # samples[:, 3, :] = l1 * numpy.sin(samples[:, 0, :]) + l2 * numpy.sin(samples[:, 0, :] + samples[:, 1, :])
+
+#     # Affichage des données (pour les ensembles 1, 2 et 3)
+#     plt.figure()
+#     plt.scatter(samples[:, 0, 0], samples[:, 1, 0])
+#     plt.xlim(-1, 1)
+#     plt.ylim(-1, 1)
+#     plt.suptitle('Données apprentissage')
+#     plt.show()
+
+#     # Affichage des données (pour l'ensemble robotique)
+#     # plt.figure()
+#     # plt.subplot(1, 2, 1)
+#     # plt.scatter(samples[:, 0, 0].flatten(), samples[:, 1, 0].flatten(), c='k')
+#     # plt.subplot(1, 2, 2)
+#     # plt.scatter(samples[:, 2, 0].flatten(), samples[:, 3, 0].flatten(), c='k')
+#     # plt.suptitle('Données apprentissage')
+#     # plt.show()
+
+#     # SIMULATION
+#     network.plot()
+
+#     if VERBOSE:
+#         plt.figure()
+#         plt.ion()
+#         plt.show()
+#     else:
+#         network.scatter_plot(False)
+
+#     for i in range(N + 1):
+#         index = numpy.random.randint(nsamples)
+#         x = samples[index].flatten()
+#         network.compute(x)
+#         network.learn(ETA, SIGMA, x)
+
+#         if VERBOSE and i % NAFFICHAGE == 0:
+#             plt.clf()
+#             # TODO : Remplacer par scatter_plot_2 pour les données robotiques
+#             network.scatter_plot(True)
+#             plt.pause(0.00001)
+#             plt.draw()
+
+#     if VERBOSE:
+#         plt.ioff()
+#     else:
+#         network.scatter_plot(False)
+
+#     network.plot()
+
+#     print("Erreur de quantification vectorielle moyenne :", network.quantification(samples))
+#     print("Mesure locale (simple) :", network.local_variation_simple())
+#     print("Mesure locale (quadratique) :", network.local_variation_quadratique())
+
+
+
+if __name__ == '__main__':
+    # Création d'un réseau avec une entrée (2,1) et une carte (10,10)
+    # TODO mettre à jour la taille des données d'entrée pour les données robotiques
+    CARTE = (10, 10)  # Taille de la carte
+    network = SOM((2, 1), CARTE)
+
+#   ETAS = [0.0, 0.5, 1, 2]
+#   SIGMAS = [0.1, 1.0, 2.0, 5.0]
+#   N_list = [100, 10000, 100000, 1000000]
+
+
+#   SIGMA_FIXE = 1.0
+#   N_FIXE = 10000
+#   CARTE_FIXE = (10, 10)
+#   ETA_FIXE = 0.01
+
+    # PARAMÈTRES DU RÉSEAU
+    N = 1000000  # Nombre de pas de temps d'apprentissage
+    ETA_INIT = 0.1
+    SIGMA_INIT = 3.0 
+    TAU_ETA = N / 2  # ou N/3 selon la rapidité souhaitée
+    TAU_SIGMA = N / 2
+
+   
+    VERBOSE = False  # TODO mettre à False pour que les simulations aillent plus vite
+    NAFFICHAGE = 1000  # Nombre de pas de temps avant rafraîchissement de l'affichage
+
+    # DONNÉES D'APPRENTISSAGE
+    nsamples = 1200
+
+    # Ensemble de données 1
+    samples = numpy.random.random((nsamples, 2, 1)) * 2 - 1
+
+    
+    import datetime
+    now = datetime.datetime.now()
+    
+
+    # print("Test : ETA={ETA}, SIGMA={SIGMA}, N={N}, CARTE={CARTE}".format(ETA=ETA, SIGMA=SIGMA, N=N, CARTE=CARTE))
+    print("Date et heure actuelles : ", now.strftime("%Y-%m-%d %H:%M:%S"))
+
+    # TODO : Décommente un des ensembles ci-dessous si besoin
+
+    # Ensemble de données 2
+    # samples1 = -numpy.random.random((nsamples // 3, 2, 1))
+    # samples2 = numpy.random.random((nsamples // 3, 2, 1))
+    # samples2[:, 0, :] -= 1
+    # samples3 = numpy.random.random((nsamples // 3, 2, 1))
+    # samples3[:, 1, :] -= 1
+    # samples = numpy.concatenate((samples1, samples2, samples3))
+
+    # Ensemble de données 3
+    # samples1 = numpy.random.random((nsamples // 2, 2, 1))
+    # samples1[:, 0, :] -= 1
+    # samples2 = numpy.random.random((nsamples // 2, 2, 1))
+    # samples2[:, 1, :] -= 1
+    # samples = numpy.concatenate((samples1, samples2))
+
+    # Ensemble de données robotiques
+    # samples = numpy.random.random((nsamples, 4, 1))
+    # samples[:, 0:2, :] *= numpy.pi
+    # l1 = 0.7
+    # l2 = 0.3
+    # samples[:, 2, :] = l1 * numpy.cos(samples[:, 0, :]) + l2 * numpy.cos(samples[:, 0, :] + samples[:, 1, :])
+    # samples[:, 3, :] = l1 * numpy.sin(samples[:, 0, :]) + l2 * numpy.sin(samples[:, 0, :] + samples[:, 1, :])
+
+    # Affichage des données (pour les ensembles 1, 2 et 3)
+    plt.figure()
+    plt.scatter(samples[:, 0, 0], samples[:, 1, 0])
+    plt.xlim(-1, 1)
+    plt.ylim(-1, 1)
+    plt.suptitle('Données apprentissage')
+    plt.show()
+
+    # Affichage des données (pour l'ensemble robotique)
+    # plt.figure()
+    # plt.subplot(1, 2, 1)
+    # plt.scatter(samples[:, 0, 0].flatten(), samples[:, 1, 0].flatten(), c='k')
+    # plt.subplot(1, 2, 2)
+    # plt.scatter(samples[:, 2, 0].flatten(), samples[:, 3, 0].flatten(), c='k')
+    # plt.suptitle('Données apprentissage')
+    # plt.show()
+
+    # SIMULATION
+    network.plot()
+
+    if VERBOSE:
+        plt.figure()
+        plt.ion()
+        plt.show()
+    else:
+        network.scatter_plot(False)
+
+    for i in range(N + 1):
+        eta = ETA_INIT * numpy.exp(-i / TAU_ETA)
+        sigma = SIGMA_INIT * numpy.exp(-i / TAU_SIGMA)
+
+        index = numpy.random.randint(nsamples)
+        x = samples[index].flatten()
+        network.compute(x)
+        network.learn(eta, sigma, x)
+
+        if VERBOSE and i % NAFFICHAGE == 0:
+            plt.clf()
+            # TODO : Remplacer par scatter_plot_2 pour les données robotiques
+            network.scatter_plot(True)
+            plt.pause(0.00001)
+            plt.draw()
+
+    if VERBOSE:
+        plt.ioff()
+    else:
+        network.scatter_plot(False)
+
+    network.plot()
+
+    t = numpy.arange(N + 1)
+    eta_vals = ETA_INIT * numpy.exp(-t / TAU_ETA)
+    sigma_vals = SIGMA_INIT * numpy.exp(-t / TAU_SIGMA)
+
+    plt.figure()
+    plt.plot(t, eta_vals, label="η(t)")
+    plt.plot(t, sigma_vals, label="σ(t)")
+    plt.xlabel("Itérations")
+    plt.ylabel("Valeur")
+    plt.title("Évolution de η(t) et σ(t) au cours de l’apprentissage")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+
+    print("Erreur de quantification vectorielle moyenne :", network.quantification(samples))
+    print("Mesure locale (simple) :", network.local_variation_simple())
+    print("Mesure locale (quadratique) :", network.local_variation_quadratique())
+
+
+
+# if __name__ == '__main__':
+
+#   # -------------------------
+#   # Paramètres à tester
+#   # -------------------------
+#   ETAS = [0.001, 0.01, 0.1, 1]
+#   SIGMAS = [0.1, 1.0, 2.0, 5.0]
+#   N_list = [100, 10000, 50000, 100000]
+#   CARTES = [(20, 1), (10, 10), (20, 5)]
+
+#   VERBOSE = False
+#   NAFFICHAGE = 1000
+#   PARAMETRE_TESTS = ["ETA", "SIGMA", "N", "CARTE"]
+
+#   # -------------------------
+#   # Jeu 1
+#   # -------------------------
+#   nsamples = 1200
+#   samples = numpy.random.random((nsamples, 2, 1)) * 2 - 1
+
+#   plt.figure()
+#   plt.scatter(samples[:, 0, 0], samples[:, 1, 0])
+#   plt.xlim(-1, 1)
+#   plt.ylim(-1, 1)
+#   plt.suptitle('Donnees apprentissage')
+#   plt.savefig("donnees_apprentissage.png")
+#   plt.show()
+
+#   # -------------------------
+#   # Boucle principale par paramètre
+#   # -------------------------
+#   for PARAMETRE_TEST in PARAMETRE_TESTS:
+#       print(f"\n### TEST SUR {PARAMETRE_TEST} ###")
+
+#       if PARAMETRE_TEST == "ETA":
+#           SIGMA_FIXE = 1.0
+#           N_FIXE = 10000
+#           CARTE_FIXE = (10, 10)
+#           for eta in ETAS:
+#             dossier = creer_dossier("Jeu1", PARAMETRE_TEST, eta)
+#             print(f"\n--- Test ETA={eta}, SIGMA={SIGMA_FIXE}, N={N_FIXE}, Carte={CARTE_FIXE} ---")
+#             network = SOM((2, 1), CARTE_FIXE)
+
+#             # Affichage des poids du réseau INITIAUX
+#             network.plot()
+#             nom_graphique_init = generer_nom_graphique("Jeu1", eta, SIGMA_FIXE, N_FIXE, CARTE_FIXE, "initial")
+#             plt.savefig(os.path.join(dossier, nom_graphique_init))
+#             plt.show()
+
+      
+
+#             # Initialisation de l'affichage interactif
+#             if VERBOSE:
+#                 plt.figure()
+#                 plt.ion()
+#                 plt.show()
+#             else:
+#                 network.scatter_plot(False)
+
+#             # Boucle d'apprentissage
+#             for i in range(N_FIXE + 1):
+#                 index = numpy.random.randint(nsamples)
+#                 x = samples[index].flatten()
+#                 network.compute(x)
+#                 network.learn(eta, SIGMA_FIXE, x)
+
+#                 if VERBOSE and i % NAFFICHAGE == 0:
+#                     plt.clf()
+#                     network.scatter_plot(True)
+#                     plt.pause(0.00001)
+#                     plt.draw()
+
+#             # Fin de l'affichage interactif
+#             if VERBOSE:
+#                 plt.ioff()
+#             else:
+#                 network.scatter_plot(False)
+
+#             # Affichage des poids du réseau FINAUX
+#             network.plot()
+#             nom_graphique_final = generer_nom_graphique("Jeu1", eta, SIGMA_FIXE, N_FIXE, CARTE_FIXE, "final")
+#             plt.savefig(os.path.join(dossier, nom_graphique_final))
+#             plt.show()
+
+#             # Mesures et affichage console
+#             eq = network.quantification(samples)
+#             vlocal_simple = network.local_variation_simple()
+#             vlocal_quad = network.local_variation_quadratique()
+#             print("erreur de quantification vectorielle moyenne ", eq)
+#             print("Mesure locale (simple) : ", vlocal_simple)
+#             print("Mesure locale (quadratique) : ", vlocal_quad)
+
+#             # Sauvegarde CSV
+#             resultats = [{
+#                 'Carte': f"{CARTE_FIXE[0]}x{CARTE_FIXE[1]}",
+#                 'ETA': eta,
+#                 'SIGMA': SIGMA_FIXE,
+#                 'N': N_FIXE,
+#                 'Erreur_Quantification': round(eq, 4),
+#                 'V_local_simple': round(vlocal_simple, 4),
+#                 'V_local_quadratique': round(vlocal_quad, 4)
+#             }]
+#             nom_fichier = generer_nom_fichier("Jeu1", eta, SIGMA_FIXE, N_FIXE, CARTE_FIXE)
+#             enregistrer_resultats_csv(os.path.join(dossier, nom_fichier), resultats)

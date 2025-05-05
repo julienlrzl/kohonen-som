@@ -1,0 +1,4 @@
+N = 100 000 ETA, SIGMA = Variable
+Erreur de quantification vectorielle moyenne : 5.4250533558626396e-05
+Mesure locale (simple) : 0.23259073749839307
+Mesure locale (quadratique) : 0.03898124376319103 

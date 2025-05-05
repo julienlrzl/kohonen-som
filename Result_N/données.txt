@@ -1,0 +1,26 @@
+N = 1 000 000
+
+Erreur de quantification vectorielle moyenne : 0.0012076240744691874
+Mesure locale (simple) : 0.1836636731723143
+Mesure locale (quadratique) : 0.025343219939204978
+
+N = 500 000
+Erreur de quantification vectorielle moyenne : 0.001998065619147329
+Mesure locale (simple) : 0.20070302823650082
+Mesure locale (quadratique) : 0.03561658973439946
+
+N = 100 000
+Erreur de quantification vectorielle moyenne : 0.001451032398518185
+Mesure locale (simple) : 0.18029878393151835
+Mesure locale (quadratique) : 0.02395911950466805
+
+N = 10 000
+Erreur de quantification vectorielle moyenne : 0.0013731690402334145
+Mesure locale (simple) : 0.18221014057351045
+Mesure locale (quadratique) : 0.024758613378513716
+
+N = 1 000
+Erreur de quantification vectorielle moyenne : 0.004944083395713054
+Mesure locale (simple) : 0.226482010802864
+Mesure locale (quadratique) : 0.047889260000163844
+
