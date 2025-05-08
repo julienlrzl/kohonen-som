@@ -328,7 +328,7 @@ def evaluate_prediction(network, data):
 if __name__ == '__main__':
   # Création d'un réseau avec une entrée (2,1) et une carte (10,10)
   #TODO mettre à jour la taille des données d'entrée pour les données robotiques
-  network = SOM((4,1),(10,10))
+  network = SOM((2,1),(10,10))
   # PARAMÈTRES DU RÉSEAU
   # Taux d'apprentissage
   ETA = 0.05
@@ -361,42 +361,65 @@ if __name__ == '__main__':
   # samples2[:,1,:] -= 1
   # samples = numpy.concatenate((samples1,samples2))
   # Ensemble de données robotiques
-  samples = numpy.random.random((nsamples,4,1))
-  samples[:,0:2,:] *= numpy.pi
-  l1 = 0.7
-  l2 = 0.3
-  samples[:,2,:] = l1*numpy.cos(samples[:,0,:])+l2*numpy.cos(samples[:,0,:]+samples[:,1,:])
-  samples[:,3,:] = l1*numpy.sin(samples[:,0,:])+l2*numpy.sin(samples[:,0,:]+samples[:,1,:])
-  # Ensemble de données robotiques (test)
-  test_samples = numpy.random.random((nsamples,4,1))
-  test_samples[:,0:2,:] *= numpy.pi
-  test_samples[:,2,:] = l1*numpy.cos(test_samples[:,0,:])+l2*numpy.cos(test_samples[:,0,:]+test_samples[:,1,:])
-  test_samples[:,3,:] = l1*numpy.sin(test_samples[:,0,:])+l2*numpy.sin(test_samples[:,0,:]+test_samples[:,1,:])
+  # samples = numpy.random.random((nsamples,4,1))
+  # samples[:,0:2,:] *= numpy.pi
+  # l1 = 0.7
+  # l2 = 0.3
+  # samples[:,2,:] = l1*numpy.cos(samples[:,0,:])+l2*numpy.cos(samples[:,0,:]+samples[:,1,:])
+  # samples[:,3,:] = l1*numpy.sin(samples[:,0,:])+l2*numpy.sin(samples[:,0,:]+samples[:,1,:])
+  # # Ensemble de données robotiques (test)
+  # test_samples = numpy.random.random((nsamples,4,1))
+  # test_samples[:,0:2,:] *= numpy.pi
+  # test_samples[:,2,:] = l1*numpy.cos(test_samples[:,0,:])+l2*numpy.cos(test_samples[:,0,:]+test_samples[:,1,:])
+  # test_samples[:,3,:] = l1*numpy.sin(test_samples[:,0,:])+l2*numpy.sin(test_samples[:,0,:]+test_samples[:,1,:])
   # Ensemble de données 1 Custom (Distribution gaussienne centrée)
-  # mean = [0, 0]
-  # cov = [[0.1, 0], [0, 0.1]] 
-  # samples = numpy.random.multivariate_normal(mean, cov, nsamples).reshape(nsamples, 2, 1)
+  n1 = 600
+  n2 = 300
+  n3 = 100
+
+  c1 = numpy.random.normal(loc=[-0.7, -0.7], scale=0.05, size=(n1, 2))  # très dense
+  c2 = numpy.random.normal(loc=[0.5, 0.5], scale=0.2, size=(n2, 2))  # moyen
+  c3 = numpy.random.normal(loc=[0, 0], scale=0.4, size=(n3, 2))  # très large
+
+  samples = numpy.concatenate((c1, c2, c3), axis=0).reshape(-1, 2, 1)
+  nsamples = samples.shape[0]
   # Ensemble de données 2 Custom (Deux clusters non symétriques)
-  # n1 = nsamples // 4
-  # n2 = nsamples - n1
-  # c1 = numpy.random.normal(loc=[-0.5, 0.5], scale=0.1, size=(n1, 2))
-  # c2 = numpy.random.normal(loc=[0.5, -0.5], scale=0.3, size=(n2, 2))
-  # samples = numpy.concatenate((c1, c2), axis=0).reshape(nsamples, 2, 1)
-  # Affichage des données (pour les ensembles 1, 2 et 3)
-  # plt.figure()
-  # plt.scatter(samples[:,0,0], samples[:,1,0])
-  # plt.xlim(-1,1)
-  # plt.ylim(-1,1)
-  # plt.suptitle('Donnees apprentissage')
-  # plt.show()
-  # Affichage des données (pour l'ensemble robotique)
+  # Partie 1 : Un cluster dense en bas à gauche
+  # n1 = 600
+  # c1 = numpy.random.normal(loc=[-0.7, -0.7], scale=0.05, size=(n1, 2))
+
+  # # Partie 2 : Une forme en croissant avec moins de points (non uniforme)
+  # n2 = 400
+  # theta = numpy.random.uniform(0, numpy.pi, n2)  # angles entre 0 et pi
+  # r = 0.5 + 0.1 * numpy.random.randn(n2)  # rayon avec petite variation
+
+  # x = r * numpy.cos(theta)
+  # y = r * numpy.sin(theta)
+  # c2 = numpy.vstack((x, y)).T
+
+  # # Partie 3 : Quelques points très dispersés aléatoirement
+  # n3 = 200
+  # c3 = numpy.random.uniform(-1, 1, size=(n3, 2))
+
+  # # Regrouper tous les points
+  # samples = numpy.concatenate((c1, c2, c3), axis=0).reshape(-1, 2, 1)
+
+  # # Calcul automatique de nsamples pour éviter les erreurs
+  # nsamples = samples.shape[0]
   plt.figure()
-  plt.subplot(1,2,1)
-  plt.scatter(samples[:,0,0].flatten(),samples[:,1,0].flatten(),c='k')
-  plt.subplot(1,2,2)
-  plt.scatter(samples[:,2,0].flatten(),samples[:,3,0].flatten(),c='k')
+  plt.scatter(samples[:,0,0], samples[:,1,0])
+  plt.xlim(-1,1)
+  plt.ylim(-1,1)
   plt.suptitle('Donnees apprentissage')
   plt.show()
+  # Affichage des données (pour l'ensemble robotique)
+  # plt.figure()
+  # plt.subplot(1,2,1)
+  # plt.scatter(samples[:,0,0].flatten(),samples[:,1,0].flatten(),c='k')
+  # plt.subplot(1,2,2)
+  # plt.scatter(samples[:,2,0].flatten(),samples[:,3,0].flatten(),c='k')
+  # plt.suptitle('Donnees apprentissage')
+  # plt.show()
     
   # SIMULATION
   # Affichage des poids du réseau
@@ -427,7 +450,7 @@ if __name__ == '__main__':
       plt.clf()
       # Remplissage de la figure
       # TODO à remplacer par scatter_plot_2 pour les données robotiques
-      network.scatter_plot_2(True)
+      network.scatter_plot(True)
       # Affichage du contenu de la figure
       plt.pause(0.00001)
       plt.draw()
@@ -437,7 +460,7 @@ if __name__ == '__main__':
     plt.ioff()
   else:
   	# Affichage de la grille finale
-  	network.scatter_plot_2(False)
+  	network.scatter_plot(False)
   # Affichage des poids du réseau
   network.plot()
   # Affichage de l'erreur de quantification vectorielle moyenne après apprentissage
@@ -447,8 +470,8 @@ if __name__ == '__main__':
   print("Mesure locale (simple) : ", network.local_variation_simple())
   print("Mesure locale (quadratique) : ", network.local_variation_quadratique())
 
-  print("Erreur moyenne sur entraînement :", evaluate_prediction(network, samples))
-  print("Erreur moyenne sur test :", evaluate_prediction(network, test_samples))
+  # print("Erreur moyenne sur entraînement :", evaluate_prediction(network, samples))
+  # print("Erreur moyenne sur test :", evaluate_prediction(network, test_samples))
 
   def predict_and_plot_trajectory(network, theta1, theta2, theta1_prime, theta2_prime, num_steps=100):
     theta1_interp = numpy.linspace(theta1, theta1_prime, num_steps)
@@ -469,4 +492,4 @@ if __name__ == '__main__':
     plt.grid(True)
     plt.show()
 
-  predict_and_plot_trajectory(network, theta1=-0.5, theta2=0, theta1_prime=3.5, theta2_prime=0)
+  # predict_and_plot_trajectory(network, theta1=-0.5, theta2=0, theta1_prime=3.5, theta2_prime=0)
